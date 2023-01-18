@@ -15,7 +15,7 @@ const initModels = () => {
 
     //relación de M-M categorias y tareas
     TasksCategories.belongsTo(Tasks, { as: "task", foreignKey: "task_id" });
-    Tasks.hasMany(TasksCategories, { as: "category", foreignKey: "task_id" });
+    Tasks.hasMany(TasksCategories, { as: "categories", foreignKey: "task_id" });
 
     TasksCategories.belongsTo(Categories, { as: "category", foreignKey: "category_id" });
     Categories.hasMany(TasksCategories, { as: "task", foreignKey: "category_id" });

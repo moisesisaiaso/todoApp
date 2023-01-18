@@ -1,17 +1,25 @@
 //* IMPORTAMOS EXPRESS
 const express = require("express");
 const db = require("./utils/database"); // como este es un modulo que hemos generado lo accedemos así
+require("dotenv").config();
+
 const initModels = require("./models/init.model");
 
 const Users = require("./models/users.model");
 const Tasks = require("./models/tasks.model");
 
+const userRoutes = require("./routes/users.routes");
+const taskRoutes = require("./routes/tasks.routes");
+const authRoutes = require("./routes/auth.routes");
+const cors = require("cors");
+
 //* CREAR UNA INSTACIA DE EXPRESS
 const app = express();
 
 app.use(express.json()); // para poder leer json que nos llega de una petición o utilizar
+app.use(cors());
 
-const PORT = 5000;
+const PORT = process.env.PORT;
 
 //^ Probando la conexion a la base de datos
 db.authenticate() // esto devuelve una promesa
@@ -21,7 +29,7 @@ db.authenticate() // esto devuelve una promesa
 initModels(); // función para inicializar los modelos para luego poder crear las tablas
 //vamos a usar el metodo sync de nuestra db para sincronizar la info de la base de datos
 // db.sync() devuelve una promesa (crear las tablas que no existen)
-db.sync({ force: false }) // { alter: true } permite dar cambios a las tablas que han sido modificadas
+db.sync({ force: false }) // { alter: true, force: true } permite dar cambios a las tablas que han sido modificadas, elimina las tablas de la db y las vuelve a crear
     .then(() => console.log("Base de datos Sincronizada"))
     .catch((error) => console.log(error));
 
@@ -29,12 +37,18 @@ app.get("/", (req, res) => {
     res.status(200).json({ message: "Bienvenido al servidor" });
 });
 
+//
+app.use("/api/v1", userRoutes); //^rutas para usuarios
+
+app.use("/api/v1", taskRoutes); //^rutas para tareas
+
+app.use("/api/v1", authRoutes); //^ ruta para loging
 //Definir las rutas de nuestros endpoints (de ahora en adelante ep)
 //todas las consultas de usuarios
 //localhost:5000/users -> todo para usuarios
 //localhost:5000/tasks -> todo para tareas
 
-//^ endpoints para USERS
+/* //^ endpoints para USERS
 //? GET a /users
 
 app.get("/users", async (req, res) => {
@@ -112,9 +126,9 @@ app.delete("/users/:id", async (req, res) => {
         res.status(400).json(error.message);
         console.log(error);
     }
-});
+}); */
 
-//^ endpoints para TASKS
+/* //^ endpoints para TASKS
 //? GET a /tasks (obtener todas las tasks)
 app.get("/tasks", async (req, res) => {
     try {
@@ -183,7 +197,7 @@ app.delete("/tasks/:id", async (req, res) => {
         res.status(400).json(error.message);
         console.log(error);
     }
-});
+}); */
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
